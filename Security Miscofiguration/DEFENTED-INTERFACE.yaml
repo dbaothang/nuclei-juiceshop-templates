@@ -1,0 +1,55 @@
+id: defented-interface
+
+info:
+  name: defented_interface
+  author: your_name
+  severity: info
+  description: 
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+          
+  - raw:
+     - |
+        POST /file-upload HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: */*
+        Authorization: Bearer {{token}}
+        Content-Type: multipart/form-data; boundary=---------------------------37802454458535712712415659625
+        Origin: http://127.0.0.1:3000
+        Connection: keep-alive
+
+        -----------------------------37802454458535712712415659625
+        Content-Disposition: form-data; name="file"; filename="abc.xml"
+        Content-Type: text/xml
+
+        111
+        -----------------------------37802454458535712712415659625--
+
+    matchers:
+      - type: status
+        status:
+          - 401
+      - type: word
+        words:
+          - "B2B customer complaints via file upload have been deprecated for security reasons"
+        part: body
+          
+          

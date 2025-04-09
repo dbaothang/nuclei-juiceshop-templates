@@ -1,0 +1,118 @@
+id: forge-coupon
+
+info:
+  name: forge-coupon
+  author: thang
+  severity: medium
+
+flow: |
+  http(1) && http(2) && http(3) && http(4)
+
+requests:
+
+# login to account
+  - raw:
+      - |
+        POST /rest/user/login HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Content-Type: application/json
+
+        {"email":"trycyber@gmail.com","password":"trycyber"}
+
+    extractors:
+      - type: regex
+        name: token
+        internal: true
+        group: 1
+        regex:
+          - '"token"\s*:\s*"([^"]+)"'
+
+
+
+# add item to basket
+  - raw:
+      - |
+        POST /api/BasketItems/ HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Content-Type: application/json
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+        
+        
+        {   
+            "ProductId": "14",
+            "BasketId":"6",
+            "quantity":1
+        }
+    
+
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+# add address         
+          
+  - raw:
+      - |
+        POST /api/Addresss/ HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Content-Type: application/json
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+        
+                
+        {       
+            "country":"t",
+            "fullName":"t",
+            "mobileNum":1234567890,
+            "zipCode":"12345678",
+            "streetAddress":"t",
+            "city":"t",
+            "state":"t"
+        }
+
+    matchers:
+      - type: status
+        status:
+          - 201
+          
+  
+# add coupon           
+  - raw:
+      - |
+        PUT /rest/basket/6/coupon/{{fuzz_coupon}} HTTP/1.1
+        Host: 127.0.0.1:3000
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}       
+                
+        {       
+        }
+        
+    attack: Pitchfork
+    payloads:
+        fuzz_coupon: /home/parrot/nuclei-templates/http/vulnerabilities/juice-shop/crytographic-issue/coupon-fuzzing.txt
+       
+    stop-at-first-match: true
+
+    matchers:
+      - type: status
+        status:
+          - 200
+          
+    extractors:
+      - type: regex
+        name: discount
+        internal: true
+        group: 1
+        regex:
+          - '"discount"\s*:\s*"([^"]+)"'
+          
+
+
