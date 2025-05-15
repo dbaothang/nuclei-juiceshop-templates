@@ -14,7 +14,7 @@ requests:
   - raw:
       - |
         POST /rest/user/login HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
         Content-Type: application/json
@@ -35,7 +35,7 @@ requests:
   - raw:
       - |
         POST /api/BasketItems/ HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Content-Type: application/json
         Authorization: Bearer {{token}}
@@ -43,7 +43,7 @@ requests:
         
         
         {   
-            "ProductId": "14",
+            "ProductId": "30",
             "BasketId":"6",
             "quantity":1
         }
@@ -59,7 +59,7 @@ requests:
   - raw:
       - |
         POST /api/Addresss/ HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Content-Type: application/json
         Authorization: Bearer {{token}}
@@ -86,7 +86,7 @@ requests:
   - raw:
       - |
         PUT /rest/basket/6/coupon/{{code_response}} HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
         Authorization: Bearer {{token}}
@@ -152,16 +152,27 @@ code:
             half = len(encoded_str) // 2
             return encoded_str[half:] + encoded_str[:half]
 
+        def get_current_date_format():
+            """Get current month abbreviation and day in 'MMMDD' format (e.g., 'MAY14')"""
+            today = datetime.today()
+            month_abbr = today.strftime('%b').upper()  # Get the 3-letter month abbreviation (e.g., 'May')
+            day = today.day
+            year = today.year % 100
+            return f"{month_abbr}{year:02d}"
+
         # Example usage
         if __name__ == "__main__":
-            # Original string
-            text = "APR25-85"
-            padded_data = pad_to_z85(text.encode('utf-8'))
-            encoded = encode_z85(padded_data).decode('utf-8')
+            # Get the current date in the desired format (e.g., "MAY14")
+            text = get_current_date_format()
             
+            # Add the prefix '-80'
+            text_with_prefix = text + "-85"
+            
+            padded_data = pad_to_z85(text_with_prefix.encode('utf-8'))
+            encoded = encode_z85(padded_data).decode('utf-8')
             
             # Rearranged version (desired format)
             rearranged = rearrange_z85(encoded)
             encoded_coupon = urllib.parse.quote(rearranged)
             print(encoded_coupon)
-# digest: 490a00463044022047a48e3faebfadf2f16a79a5c4ba87331f735115036f3934b4885f0b2d13ad3902203b875c5b26cbcd913e5c9b67db37a3ed7cd4a0781b9ec47b3baa119d787a5913:0dd34f63ed422f65711fe796f66903bf
+# digest: 4a0a0047304502206aa2dfc795769c2cd5da9f72fcaff5bd243f6c767b7a4d228979225c545c1737022100aead69f4dab66c3bd6efce75656d0c09713a5f4e763ef4ca9fb31d692e21e4f2:0dd34f63ed422f65711fe796f66903bf

