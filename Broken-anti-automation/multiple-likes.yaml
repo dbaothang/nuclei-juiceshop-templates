@@ -7,7 +7,7 @@ info:
   description: "Test for broken anti-automation on product reviews"
 
 flow: |
-  http(1) && http(2) && http(3) && http(4)
+  http(1) && http(2) && http(3) 
 
 requests:
   - raw:
@@ -30,21 +30,7 @@ requests:
 
   - raw:
       - |
-        PUT /rest/products/22/reviews HTTP/1.1
-        Host: {{Hostname}}
-        Authorization: Bearer {{token}}
-        Content-Type: application/json
-
-        {"review":"This is a test"}
-
-    matchers:
-      - type: status
-        status:
-          - 201
-
-  - raw:
-      - |
-        GET /rest/products/22/reviews HTTP/1.1
+        GET /rest/products/30/reviews HTTP/1.1
         Host: {{Hostname}}
         Authorization: Bearer {{token}}
 
